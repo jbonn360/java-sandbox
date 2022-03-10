@@ -2,7 +2,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-
+	// form(1): https://www.baeldung.com/java-method-references
+	// from(2): https://www.youtube.com/watch?v=ODsxsSYRwcY
+	
 	public static void main(String[] args) {		
 		final List<Vehicle> vehicles = new ArrayList<Vehicle>();
 		
@@ -38,6 +40,9 @@ public class Main {
 		//4. Reference to a constructor
 		vehicles.forEach(VehicleDetailsPrinter::new);
 		System.out.println("\n---------------------------");
+		
+		
+		vehicles.forEach(System.out::print);
 	}
 	
 	public static void consume(Vehicle vehicle) {
