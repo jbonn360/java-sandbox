@@ -43,7 +43,5 @@ public class Main {
 		
 		test3 = test3.intern();
 		System.out.println(System.identityHashCode(test3) + " <---- Reference was changed since the string has been manually interned.");
-		
-			
 	}
 }
