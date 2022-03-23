@@ -38,6 +38,12 @@ public class Main {
 			System.out.println("test2's value is equal to test3's value");
 		else
 			System.out.println("test2's value is NOT equal to test3's value");
+		
+		System.out.println("\n--------------------------------\n");
+		
+		test3 = test3.intern();
+		System.out.println(System.identityHashCode(test3) + " <---- Reference was changed since the string has been manually interned.");
+		
 			
 	}
 }
