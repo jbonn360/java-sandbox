@@ -54,8 +54,9 @@ public class Main {
 		chill(3);
 
 		print("\n===== Priority Blocking Queue =====");
-		print("Priority queues ensure that the elements are sorted via their individual priority, ");
-		print("based on their value. In this case, we're using a PriorityBlockingQueue that also");
+		print("Priority queues ensure that the elements are sorted via their individual priority,");
+		print("based on their value. Elements in this queue must be of a type that implements the ");
+		print("Comparable interface. In this case, we're using a PriorityBlockingQueue that also");
 		print("includes Blocking Queue behaviour.");
 		
 		PriorityBlockingQueue<String> stringPriorityBlockingQueue = new PriorityBlockingQueue<String>();

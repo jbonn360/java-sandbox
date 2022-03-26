@@ -1,4 +1,4 @@
-package com.example;
+package com.example.demo;
 
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
