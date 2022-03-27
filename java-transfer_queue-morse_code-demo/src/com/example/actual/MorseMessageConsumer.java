@@ -12,20 +12,20 @@ import java.util.concurrent.TransferQueue;
 
 public class MorseMessageConsumer implements Runnable {
 
-	private TransferQueue<Character> transferQueue;
+	private TransferQueue<Boolean> transferQueue;
 
 	private Map<String, Character> morseCodeCharacterMap;
 
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL)
 			.withLocale(Locale.UK).withZone(ZoneId.systemDefault());
 
-	public MorseMessageConsumer(TransferQueue<Character> transferQueue) {
+	public MorseMessageConsumer(TransferQueue<Boolean> transferQueue) {
 		this.transferQueue = transferQueue;
 
 		morseCodeCharacterMap = new HashMap<>();
-		morseCodeCharacterMap.put("O-", 'A');
-		morseCodeCharacterMap.put("-OOO", 'B');
-		morseCodeCharacterMap.put("-O-O", 'C');
+		morseCodeCharacterMap.put("01", 'A');
+		morseCodeCharacterMap.put("1000", 'B');
+		morseCodeCharacterMap.put("1010", 'C');
 	}
 
 //	the space between signal elements 
@@ -38,14 +38,14 @@ public class MorseMessageConsumer implements Runnable {
 		final Duration unitInterval = Duration.ofSeconds(1);
 
 		Instant lastSignalReceivedAt = null;
-		Character thisSignal = null;
+		Boolean thisSignal = null;
 		try {
 			while (true) {
 				thisSignal = transferQueue.take();
 
 				if (thisSignal != null) {
 					lastSignalReceivedAt = Instant.now();
-					System.out.println("Received character: " + thisSignal.charValue() + " at "
+					System.out.println("Received signal: " + thisSignal.booleanValue() + " at "
 							+ formatter.format(lastSignalReceivedAt));
 					thisSignal = null;
 				} else
