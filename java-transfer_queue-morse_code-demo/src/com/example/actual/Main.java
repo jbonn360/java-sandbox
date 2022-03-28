@@ -1,9 +1,12 @@
 package com.example.actual;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedTransferQueue;
@@ -11,12 +14,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-public class Main implements ActionListener {
+public class Main implements KeyListener {
 	private JLabel label;
 	private JFrame frame;
 	private JPanel panel;
@@ -27,6 +33,8 @@ public class Main implements ActionListener {
 	
 	private final TransferQueue<Boolean> transferQueue;
 	private final ExecutorService exService;
+	
+	private boolean keyPressed;
 	
 	public static void main(String[] args) throws InterruptedException {		
 		new Main();
@@ -41,15 +49,9 @@ public class Main implements ActionListener {
 		producer = new MorseMessageProducer(transferQueue);
 		consumer = new MorseMessageConsumer(transferQueue);
 		
-		runConsumer(transferQueue, exService);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-//		count++;		
-//		label.setText(String.format("Number of clicks: %d", count));
+		keyPressed = false;
 		
-		producer.sendSignal();
+		runConsumer(transferQueue, exService);
 	}
 	
 	public void runConsumer(TransferQueue<Boolean> transferQueue, ExecutorService exService)
@@ -64,10 +66,13 @@ public class Main implements ActionListener {
 	
 	private void initGUI() {
 		frame = new JFrame();
-		panel = new JPanel();
+		//frame.addKeyListener(this);
 		
-		signalButton = new JButton("");
-		signalButton.addActionListener(this);
+		panel = new JPanel();			
+				
+		signalButton = new JButton();
+		//signalButton.addActionListener(this);
+		//signalButton.addChangeListener(this);
 		
 		label = new JLabel("Number of clicks: 0");
 		
@@ -76,10 +81,36 @@ public class Main implements ActionListener {
 		panel.add(signalButton);
 		panel.add(label);
 		
+		//panel.setBackground(Color.PINK);
+		
+		panel.addKeyListener(this);
+		panel.setFocusable(true);		
+		
 		frame.add(panel, BorderLayout.CENTER);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Transfer Queue - Morse Demo");
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {	
+		System.out.println("keyTyped");		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == 12 && !keyPressed) {
+			producer.sendSignal(true);
+			keyPressed = true;
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == 12 && keyPressed) {
+			producer.sendSignal(false);
+			keyPressed = false;
+		}	
 	}
 }
