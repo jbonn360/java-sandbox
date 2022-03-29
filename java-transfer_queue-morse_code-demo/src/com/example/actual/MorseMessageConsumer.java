@@ -15,7 +15,7 @@ public class MorseMessageConsumer implements Runnable {
 	final Duration morseUnitInterval = Duration.ofSeconds(1);
 	final Duration morseUnitGraceAmount = Duration.ofMillis(200);
 
-	private final StringBuilder sb;
+	private final List<MorseElement> rawMorseMessage;
 
 	// private final DateTimeFormatter formatter = DateTimeFormatter.of
 
@@ -27,9 +27,9 @@ public class MorseMessageConsumer implements Runnable {
 		morseCodeCharacterMap.put("1000", 'B');
 		morseCodeCharacterMap.put("1010", 'C');
 
-		sb = new StringBuilder();
+		rawMorseMessage = new ArrayList<>();
 	}
-	
+
 //	https://www.quora.com/What-are-the-basic-rules-of-morse-code
 //
 //	1. Length of a dot is 1 unit
@@ -41,7 +41,7 @@ public class MorseMessageConsumer implements Runnable {
 	public void run() {
 		Instant lastSignalReceivedAt = Instant.MIN;
 		Instant thisSignalReceivedAt = null;
-		
+
 		Boolean lastSignal = false;
 		Boolean thisSignal = false;
 
@@ -58,23 +58,32 @@ public class MorseMessageConsumer implements Runnable {
 
 					// parse duration between reception of true > false signals into 0s and 1s AKA
 					// .'s and _'s
-					
+
 					// indicates the completion of a morse unit
-					if(lastSignal && !thisSignal) {
+					if (lastSignal && !thisSignal) {
 						// if 1 unit interval
 						if (compareDurationsGracefully(thisInterval, morseUnitInterval))
-							sb.append('0');		
+							rawMorseMessage.add(MorseElement.DOT);
 						// if 3 unit interval
 						else if (compareDurationsGracefully(thisInterval, morseUnitInterval.multipliedBy(3)))
-							sb.append('1');
+							rawMorseMessage.add(MorseElement.DASH);
 						// anything else doesn't make sense
-						else 
-							System.out.println("Signal unusable, ignoring...");							
-					} 
-					//indicates a space between morse units/letters/words
-					else if (!lastSignal && thisSignal)
-						
-					
+						else
+							System.out.println("Signal unusable, ignoring...");
+					}
+					// indicates a space between morse units/letters/words
+					else if (!lastSignal && thisSignal) {
+						// if 1 unit interval
+						if (compareDurationsGracefully(thisInterval, morseUnitInterval))
+							rawMorseMessage.add(MorseElement.SEPARATOR_ELEMENT);
+						// if 3 unit interval
+						else if (compareDurationsGracefully(thisInterval, morseUnitInterval.multipliedBy(3)))
+							rawMorseMessage.add(MorseElement.SEPARATOR_LETTER);
+						// if 3 unit interval
+						else if (compareDurationsGracefully(thisInterval, morseUnitInterval.multipliedBy(7))
+								|| (thisInterval.compareTo(morseUnitInterval.multipliedBy(7)) > 0)) // if greater than 7 units, assume 
+							rawMorseMessage.add(MorseElement.SEPARATOR_WORD);													// that this is a word separator
+					}
 
 					// assign 'this' params to 'last' params
 					lastSignalReceivedAt = thisSignalReceivedAt;
@@ -96,12 +105,38 @@ public class MorseMessageConsumer implements Runnable {
 		return difference.compareTo(morseUnitGraceAmount) < 1;
 	}
 
-	private void chill() {
-		try {
-			Thread.sleep(10);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	// synchronized methods allow only one thread to execute at any given time
+	public synchronized String getRawMessage() {
+		final StringBuilder sb = new StringBuilder(rawMorseMessage.size());
+		
+		rawMorseMessage.forEach(element -> sb.append(element.getValue()));
+		
+		return sb.toString();
 	}
 
+	public synchronized String getParsedMessage() {
+		final List<MorseWord> rawWordsList = new ArrayList<MorseWord>();
+	
+		final StringBuilder sb = new StringBuilder();
+		
+		for(MorseElement element : rawMorseMessage) {
+			//sb.append(MorseCodeTable.getAlphabeticalCharacter(element));
+		}
+		
+//		MorseWord morseWordContainer = new MorseWord();
+//		for(MorseElement element : rawMorseMessage){
+//			if(element != MorseElement.SEPARATOR_WORD)
+//				morseWordContainer.addElement(element);
+//			else {
+//				rawWordsList.add(morseWordContainer);
+//				morseWordContainer = new MorseWord();
+//			}	
+//		}
+//		
+//		for(MorseWord morseWord : rawWordsList) {
+//			for(MorseElement)
+//		}
+		
+		return "";
+	}
 }
