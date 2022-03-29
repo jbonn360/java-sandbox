@@ -3,16 +3,16 @@ package com.example.actual;
 import java.util.List;
 
 public class MorseWord {
-	private List<MorseElement> elements;
+	private List<MorseLetter> letters;
 	
 	public MorseWord() {
 	}
 	
-	public List<MorseElement> getElements() {
-		return elements;
+	public List<MorseLetter> getLetters() {
+		return letters;
 	}
 	
-	public void addElement(MorseElement element) {
-		elements.add(element);
+	public void addLetter(MorseLetter element) {
+		letters.add(element);
 	}
 }

@@ -12,8 +12,8 @@ public class MorseMessageConsumer implements Runnable {
 	private TransferQueue<Boolean> transferQueue;
 	private Map<String, Character> morseCodeCharacterMap;
 
-	final Duration morseUnitInterval = Duration.ofSeconds(1);
-	final Duration morseUnitGraceAmount = Duration.ofMillis(200);
+	final Duration morseUnitInterval = Duration.ofMillis(500);
+	final Duration morseUnitGraceAmount = Duration.ofMillis(100);
 
 	private final List<MorseElement> rawMorseMessage;
 
@@ -114,29 +114,35 @@ public class MorseMessageConsumer implements Runnable {
 		return sb.toString();
 	}
 
-	public synchronized String getParsedMessage() {
-		final List<MorseWord> rawWordsList = new ArrayList<MorseWord>();
-	
-		final StringBuilder sb = new StringBuilder();
+	public synchronized String getParsedMessage() {		
+		final List<MorseWord> wordsList = new ArrayList<>();		
+		
+		MorseLetter letterContainer = new MorseLetter();
+		MorseWord wordContainer = new MorseWord();
 		
 		for(MorseElement element : rawMorseMessage) {
-			//sb.append(MorseCodeTable.getAlphabeticalCharacter(element));
+			if(element != MorseElement.SEPARATOR_WORD && element != MorseElement.SEPARATOR_LETTER)
+				letterContainer.addElement(element);
+			else {
+				if(element == MorseElement.SEPARATOR_LETTER) {
+					wordContainer.addLetter(letterContainer);
+					letterContainer = new MorseLetter();
+				}else {
+					wordsList.add(wordContainer);
+					wordContainer = new MorseWord();
+					letterContainer = new MorseLetter();
+				}
+			}
 		}
 		
-//		MorseWord morseWordContainer = new MorseWord();
-//		for(MorseElement element : rawMorseMessage){
-//			if(element != MorseElement.SEPARATOR_WORD)
-//				morseWordContainer.addElement(element);
-//			else {
-//				rawWordsList.add(morseWordContainer);
-//				morseWordContainer = new MorseWord();
-//			}	
-//		}
-//		
-//		for(MorseWord morseWord : rawWordsList) {
-//			for(MorseElement)
-//		}
+		final StringBuilder sb = new StringBuilder();
 		
-		return "";
+		for(MorseWord word : wordsList) {
+			for(MorseLetter letter : word.getLetters())
+				 sb.append(MorseTable.getAlphabeticalCharacter(letter.getElements()));			
+			sb.append(' ');
+		}			
+		
+		return sb.toString();
 	}
 }

@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +55,7 @@ public class Main implements KeyListener {
 
 		while (true) {
 			rawMessageLabel.setText("Raw Data: " + consumer.getRawMessage());
-			parsedMessageLabel.setText("Parsed Data: " + consumer.getParsedMessage());
+			//parsedMessageLabel.setText("Parsed Data: " + consumer.getParsedMessage());
 			Thread.sleep(100);
 		}
 	}
@@ -117,7 +116,7 @@ public class Main implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (isNum5KeyCode(e.getKeyCode()) && !keyPressed) {
+		if (isNum5OOrEnterKeyCode(e.getKeyCode()) && !keyPressed) {
 			producer.sendSignal(true);
 			keyPressed = true;
 		}
@@ -125,14 +124,14 @@ public class Main implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (isNum5KeyCode(e.getKeyCode()) && keyPressed) {
+		if (isNum5OOrEnterKeyCode(e.getKeyCode()) && keyPressed) {
 			producer.sendSignal(false);
 			keyPressed = false;
 		}
 	}
 
-	private boolean isNum5KeyCode(int keyCode) {
+	private boolean isNum5OOrEnterKeyCode(int keyCode) {
 		// num lock activation changes the key's code
-		return (keyCode == 12 || keyCode == 101);
+		return (keyCode == 12 || keyCode == 101 || keyCode == 10);
 	}
 }

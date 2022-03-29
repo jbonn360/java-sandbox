@@ -18,13 +18,13 @@ public enum MorseElement {
 		return value;
 	}
 	
-	public static MorseElement[] parse(String sequence) {
-		MorseElement[] result = new MorseElement[sequence.length()];
-		
-		for(int i = 0; i < sequence.length(); i++) {
-			result[i] = MorseElement.valueOf(Character.toString(sequence.charAt(i)));
-		}
-		
-		return result;
-	}
+//	public static MorseElement[] parse(String sequence) {
+//		MorseElement[] result = new MorseElement[sequence.length()];
+//		
+//		for(int i = 0; i < sequence.length(); i++) {
+//			result[i] = MorseElement.valueOf(Character.toString(sequence.charAt(i)));
+//		}
+//		
+//		return result;
+//	}
 }
