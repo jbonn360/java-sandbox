@@ -3,17 +3,16 @@ package com.example.actual;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TransferQueue;
 
 public class MorseMessageConsumer implements Runnable {
 	private TransferQueue<Boolean> transferQueue;
-	private Map<String, Character> morseCodeCharacterMap;
 
-	final Duration morseUnitInterval = Duration.ofMillis(500);
-	final Duration morseUnitGraceAmount = Duration.ofMillis(100);
+	final Duration morseUnitInterval = Duration.ofMillis(1000);
+	final Duration morseUnitGraceAmount = Duration.ofMillis(300);
 
 	private final List<MorseElement> rawMorseMessage;
 
@@ -21,12 +20,6 @@ public class MorseMessageConsumer implements Runnable {
 
 	public MorseMessageConsumer(TransferQueue<Boolean> transferQueue) {
 		this.transferQueue = transferQueue;
-
-		morseCodeCharacterMap = new HashMap<>();
-		morseCodeCharacterMap.put("01", 'A');
-		morseCodeCharacterMap.put("1000", 'B');
-		morseCodeCharacterMap.put("1010", 'C');
-
 		rawMorseMessage = new ArrayList<>();
 	}
 
@@ -81,8 +74,9 @@ public class MorseMessageConsumer implements Runnable {
 							rawMorseMessage.add(MorseElement.SEPARATOR_LETTER);
 						// if 3 unit interval
 						else if (compareDurationsGracefully(thisInterval, morseUnitInterval.multipliedBy(7))
-								|| (thisInterval.compareTo(morseUnitInterval.multipliedBy(7)) > 0)) // if greater than 7 units, assume 
-							rawMorseMessage.add(MorseElement.SEPARATOR_WORD);													// that this is a word separator
+								|| (thisInterval.compareTo(morseUnitInterval.multipliedBy(7)) > 0)) // if greater than 7
+																									// units, assume
+							rawMorseMessage.add(MorseElement.SEPARATOR_WORD); // that this is a word separator
 					}
 
 					// assign 'this' params to 'last' params
@@ -108,41 +102,48 @@ public class MorseMessageConsumer implements Runnable {
 	// synchronized methods allow only one thread to execute at any given time
 	public synchronized String getRawMessage() {
 		final StringBuilder sb = new StringBuilder(rawMorseMessage.size());
-		
+
 		rawMorseMessage.forEach(element -> sb.append(element.getValue()));
-		
+
 		return sb.toString();
 	}
 
-	public synchronized String getParsedMessage() {		
-		final List<MorseWord> wordsList = new ArrayList<>();		
+	public synchronized String getParsedMessage() {
+		// create arraylist with a single object
+		final List<MorseWord> wordsList = new ArrayList<MorseWord>(Arrays.asList(new MorseWord()));
+		int wordCounter = 0;
 		
-		MorseLetter letterContainer = new MorseLetter();
-		MorseWord wordContainer = new MorseWord();
+		//contains elements that make up the current letter
+		MorseLetter letterBuffer = new MorseLetter();
 		
-		for(MorseElement element : rawMorseMessage) {
-			if(element != MorseElement.SEPARATOR_WORD && element != MorseElement.SEPARATOR_LETTER)
-				letterContainer.addElement(element);
+		for (MorseElement element : rawMorseMessage) {
+			if (element != MorseElement.SEPARATOR_WORD && element != MorseElement.SEPARATOR_LETTER)
+				letterBuffer.addElement(element);
 			else {
-				if(element == MorseElement.SEPARATOR_LETTER) {
-					wordContainer.addLetter(letterContainer);
-					letterContainer = new MorseLetter();
-				}else {
-					wordsList.add(wordContainer);
-					wordContainer = new MorseWord();
-					letterContainer = new MorseLetter();
+				wordsList.get(wordCounter).addLetter(letterBuffer);
+				letterBuffer = new MorseLetter();
+
+				if (element == MorseElement.SEPARATOR_WORD) {
+					wordsList.add(new MorseWord());
+					wordCounter++;
 				}
 			}
 		}
-		
+
 		final StringBuilder sb = new StringBuilder();
-		
-		for(MorseWord word : wordsList) {
-			for(MorseLetter letter : word.getLetters())
-				 sb.append(MorseTable.getAlphabeticalCharacter(letter.getElements()));			
+
+		List<MorseLetter> letters = null;
+		for (MorseWord word : wordsList) {
+			letters = word.getLetters();
+
+			if (letters == null)
+				continue;
+
+			for (MorseLetter letter : letters)
+				sb.append(MorseTable.getAlphabeticalCharacter(letter.getElements()));
 			sb.append(' ');
-		}			
-		
+		}
+
 		return sb.toString();
 	}
 }

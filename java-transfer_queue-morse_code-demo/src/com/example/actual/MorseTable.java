@@ -3,6 +3,7 @@ package com.example.actual;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class MorseTable {
 	private static Map<String, Character> morseMap;
@@ -43,6 +44,8 @@ public class MorseTable {
 		
 		morseSequence.forEach(element -> sb.append(element.getValue()));
 		
-		return morseMap.get(sb.toString());
+		final Optional<Character> result = Optional.ofNullable(morseMap.get(sb.toString()));
+		
+		return result.orElse(Character.MIN_VALUE);
 	}
 }

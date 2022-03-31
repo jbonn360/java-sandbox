@@ -55,7 +55,7 @@ public class Main implements KeyListener {
 
 		while (true) {
 			rawMessageLabel.setText("Raw Data: " + consumer.getRawMessage());
-			//parsedMessageLabel.setText("Parsed Data: " + consumer.getParsedMessage());
+			parsedMessageLabel.setText("Parsed Data: " + consumer.getParsedMessage());
 			Thread.sleep(100);
 		}
 	}
